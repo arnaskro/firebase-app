@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome to Firebase Hosting</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/4.5.1/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/4.5.1/firebase-auth.js"></script>
+    <script defer src="/__/firebase/4.5.1/firebase-database.js"></script>
+    <script defer src="/__/firebase/4.5.1/firebase-messaging.js"></script>
+    <script defer src="/__/firebase/4.5.1/firebase-storage.js"></script>
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script defer src="/__/firebase/init.js"></script>
+
+    <style media="screen">
+      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
+      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
+      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
+      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
+      #message { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
+      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
+      div#todos > a:first-child { margin-top: 20px; }
+      @media (max-width: 600px) {
+        body, #message { margin-top: 0; background: white; box-shadow: none; }
+        body { border-top: 16px solid #ffa100; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="message">
+      <h2>Welcome</h2>
+      <h1>TODO app with Firebase</h1>
+      
+      <div class="input-group">
+        <input id="todoInput" type="text" class="form-control" placeholder="What needs to be done?">
+        <span class="input-group-btn">
+          <button id="todoAdd" class="btn btn-secondary disabled" type="button">Add</button>
+        </span>
+      </div>
+
+      <div id="todos" class="list-group"><a href="#" class="list-group-item list-group-item-action disabled">Loading todos...</a></div>
+
+    </div>
+    <p id="load">Firebase SDK Loading&hellip;</p>
+
+    <script src="https://www.gstatic.com/firebasejs/4.5.1/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyB07-9WCahevJzdO-yUYepjNPYu8j0UvKc",
+        authDomain: "my-app-87dbe.firebaseapp.com",
+        databaseURL: "https://my-app-87dbe.firebaseio.com",
+        projectId: "my-app-87dbe",
+        storageBucket: "my-app-87dbe.appspot.com",
+        messagingSenderId: "106239770458"
+      };
+      firebase.initializeApp(config);
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+        // The Firebase SDK is initialized and available here!
+      
+        // firebase.auth().onAuthStateChanged(user => { });
+        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
+        // firebase.messaging().requestPermission().then(() => { });
+        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
+        
+        // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+
+        try {
+          let app = firebase.app();
+          let features = ['auth', 'database', 'messaging', 'storage'].filter(feature => typeof app[feature] === 'function');
+          document.getElementById('load').innerHTML = `Firebase SDK loaded with ${features.join(', ')}`;
+        } catch (e) {
+          console.error(e);
+          document.getElementById('load').innerHTML = 'Error loading the Firebase SDK, check the console.';
+        }
+      });
+    </script>
+
+    <script>
+      // Get element for todos
+      var listElement = document.getElementById('todos');
+
+      var X = {
+        
+        renderTodos(todosList) {
+          // Remove previous values
+          listElement.innerHTML = '';
+
+          // Check if we have any todos
+          if (todosList) {
+            // Loop through todos and append the to the list element
+            todosList.forEach(todo => X.addTodo(todo));
+          }
+        },
+
+        addTodo(todo) {
+          listElement.innerHTML += `<a href="#" data-key="${todo.key}" class="list-group-item list-group-item-action">${todo.val().text}</a>`;
+        },
+
+        updateTodo(todo) {
+          // Find elements that matches the key
+          var todoElements = document.querySelectorAll(`[data-key='${todo.key}']`);
+          // Loop through and update their value
+          for (var i = 0, len = todoElements.length; i < len; i++)
+            todoElements[i].innerHTML = todo.val().text;
+        },
+
+        removeTodo(todoKey) {
+          // Find elements that matches the key
+          var todoElements = document.querySelectorAll(`[data-key='${todoKey}']`);
+          // Loop through and remove them
+          for (var i = 0, len = todoElements.length; i < len; i++)
+            todoElements[i].remove();
+        },
+
+        hideTodo(todoKey) {
+          // Find elements that matches the key
+          var todoElements = document.querySelectorAll(`[data-key='${todoKey}']`);
+          // Loop through and remove them
+          for (var i = 0, len = todoElements.length; i < len; i++)
+            todoElements[i].style.display = "none";
+        }
+
+      }
+
+      var triggerEvent = (element, eventCode) => {
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent(eventCode, true, false);
+        element.dispatchEvent(event);
+      }
+    </script>
+
+    <script>
+      // References
+      var todosDbRef = firebase.database().ref().child('todos');
+      
+      // TODO's list
+      todosDbRef.once('value', snap => X.renderTodos(snap));
+      todosDbRef.on('child_added', todo => X.addTodo(todo));
+      todosDbRef.on('child_changed', todo => X.updateTodo(todo));
+      todosDbRef.on('child_removed', todo => X.removeTodo(todo.key));
+
+      // Add a todo
+      var todoInput = document.getElementById('todoInput');
+      var todoAddBtn = document.getElementById('todoAdd');
+
+      todoInput.addEventListener('keypress', e => {
+        var value = e.currentTarget.value;
+
+        if (value.length > 5) {
+          todoAddBtn.classList.remove('disabled');
+          todoInput.classList.remove('is-invalid');
+          todoInput.classList.add('is-valid');
+        } else if (value.length == 0) {
+          todoInput.classList.remove('is-valid');
+          todoAddBtn.classList.add('disabled');
+          todoInput.classList.remove('is-invalid');
+        } else {
+          todoInput.classList.remove('is-valid');
+          todoInput.classList.add('is-invalid');
+          todoAddBtn.classList.add('disabled');
+        }
+
+        var key = e.which || e.keyCode;
+        if (key === 13) {
+          triggerEvent(todoAddBtn, 'click');
+        }
+
+      })
+
+      todoAddBtn.addEventListener('click', e => {
+        if (todoInput.value.length > 5) {
+          var value = todoInput.value;
+          todoInput.value = '';
+
+          // Trigger event
+          triggerEvent(todoInput, 'keypress');
+
+          // Add to database
+          var newTodoRef = todosDbRef.push();
+          newTodoRef.set({
+            completed: false,
+            text: value
+          })
+        }
+      })
+
+      // Remove todo
+      listElement.addEventListener('click', e => {
+        if (e.currentTarget == e.target) return;
+        var todoKey = e.target.dataset.key;
+
+        // Delete todo in db
+        if(typeof todoKey !== 'undefined') {
+          firebase.database().ref(`todos/${todoKey}`).remove();
+          X.hideTodo(todoKey);
+        }
+      })
+
+    </script>
+  </body>
+</html>
